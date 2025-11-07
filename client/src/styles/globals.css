@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * CraftScale by Stumpf.works
+ * Global Styles
+ */
+
+@layer base {
+  body {
+    @apply font-sans antialiased;
+  }
+}
+
+@layer components {
+  /* Glassmorphism Card */
+  .glass-card {
+    @apply bg-white/90 backdrop-blur-lg rounded-xl shadow-xl;
+  }
+
+  /* Gradient Button */
+  .btn-gradient {
+    @apply bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium px-6 py-2 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+  }
+
+  /* Input Field */
+  .input-field {
+    @apply border-2 border-gray-300 focus:border-indigo-500 focus:outline-none rounded-lg px-4 py-2 bg-white/50 backdrop-blur transition-colors;
+  }
+
+  /* Badge */
+  .badge {
+    @apply rounded-full px-3 py-1 text-sm font-medium inline-flex items-center gap-1;
+  }
+
+  /* Status Indicator */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-200 rounded-lg;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-indigo-500 rounded-lg hover:bg-indigo-600;
+}
+
+/* Animation für Gewichtsanzeige */
+@keyframes weight-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.weight-display {
+  animation: weight-pulse 2s ease-in-out infinite;
+}

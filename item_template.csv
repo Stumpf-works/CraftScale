@@ -1,0 +1,2 @@
+Item name,Price,SKU,Barcode,Tax rate,Track inventory,Quantity,Category,Image 1,Shipping weight,Description
+Beispiel Produkt,19.50,CS-BEI-123456,2001234567890,19.00,Yes,1,Handgemachte Produkte - CraftScale,http://192.168.1.100:3000/uploads/example.jpg,0.150,Handgefertigt - Beispiel Produkt

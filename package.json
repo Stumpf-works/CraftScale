@@ -1,0 +1,32 @@
+{
+  "name": "craftscale",
+  "version": "1.0.0",
+  "description": "CraftScale by Stumpf.works - DIY Craft Management System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "set NODE_ENV=development&& nodemon server.js",
+    "build": "cd client && npm run build",
+    "install:all": "npm install && cd client && npm install",
+    "setup": "npm run install:all && npm run build"
+  },
+  "keywords": ["craftscale", "epoxy", "resin", "management", "diy", "scale"],
+  "author": "Stumpf.works",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6",
+    "multer": "^1.4.5-lts.1",
+    "cors": "^2.8.5",
+    "jsbarcode": "^3.11.5",
+    "canvas": "^2.11.2",
+    "dotenv": "^16.3.1",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
