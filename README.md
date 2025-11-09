@@ -16,13 +16,15 @@ Ein vollständiges DIY Epoxidharz Management System mit intelligenter Waage, Pro
 ## 📋 Features
 
 - **🔄 Live Waage**: ESP8266 + HX711 + 1kg Wägezelle für automatische Gewichtserkennung
+- **🌐 ESP8266 Web-Interface**: Konfiguration, Kalibrierung und Standalone-Modus direkt am Gerät
 - **📦 Produktverwaltung**: Fotos, Gewicht, Materialverbrauch, automatische Preiskalkulation
 - **🧪 Material-Manager**: Harz, Härter, Pigmente, Formen verwalten
 - **💰 Kosten-Kalkulation**: Material + Arbeit + Fixkosten + Gewinnmarge = Verkaufspreis
 - **📊 SumUp Export**: CSV-Export für direkten Import in SumUp Kassensystem
 - **🏷️ Barcode-Generation**: EAN-13 Barcodes für Brother P-Touch Etikettendrucker
-- **🌐 Web-Interface**: Modernes React Frontend mit Tailwind CSS
+- **🎨 React Web-Interface**: Modernes Frontend mit Tailwind CSS
 - **🔌 Local Network**: Läuft im lokalen Netzwerk ohne Cloud
+- **📱 Mobile Ready**: Zugriff von Smartphone, Tablet oder Desktop
 
 ## 🏗️ System-Architektur
 
@@ -101,6 +103,13 @@ A+          ────────►    Weiß (A+)
 
 **Software:**
 
+**WICHTIG: Zwei Versionen verfügbar!**
+
+1. **`esp8266_scale.ino`** - Original (WiFi/Server im Code konfigurieren)
+2. **`esp8266_scale_with_webui.ino`** - ⭐ **NEU mit Web-Interface** (Empfohlen!)
+
+**Installation (Web-Interface Version):**
+
 1. Arduino IDE installieren (https://www.arduino.cc/en/software)
 2. ESP8266 Board Support installieren:
    - Arduino IDE → Datei → Voreinstellungen
@@ -108,16 +117,30 @@ A+          ────────►    Weiß (A+)
    - Werkzeuge → Board → Boardverwalter → "esp8266" suchen und installieren
 3. Bibliotheken installieren:
    - Sketch → Bibliothek einbinden → Bibliotheken verwalten
-   - Installieren: `HX711`, `ArduinoJson`
-4. Code öffnen: `arduino/esp8266_scale.ino`
-5. **Wichtig**: Anpassen:
-   ```cpp
-   const char* WIFI_SSID = "DEIN_WIFI";
-   const char* WIFI_PASSWORD = "DEIN_PASSWORD";
-   const char* SERVER_URL = "http://192.168.1.XXX:3000/api/weight"; // SERVER IP!
-   ```
+   - Installieren: `HX711`, `ArduinoJson`, `WiFiManager` (by tzapu)
+4. Code öffnen: `arduino/esp8266_scale_with_webui.ino`
+5. **Keine Code-Änderung nötig!** WiFi wird beim ersten Start konfiguriert
 6. Board auswählen: Werkzeuge → Board → ESP8266 Boards → NodeMCU 1.0
 7. Upload (Sketch → Hochladen)
+
+**Erstkonfiguration (WiFi-Manager):**
+
+1. ESP8266 startet im Konfigurations-Modus
+2. Mit WiFi verbinden: **"CraftScale-Waage"**
+3. Browser öffnet automatisch (oder `http://192.168.4.1`)
+4. Ihr WiFi-Netzwerk auswählen und Passwort eingeben
+5. IP-Adresse im Serial Monitor notieren
+
+**Web-Interface der Waage:**
+
+Nach erfolgreicher WiFi-Verbindung:
+- Browser öffnen: `http://WAAGE_IP` (z.B. `http://192.168.1.50`)
+- **Live Gewichtsanzeige** im Browser
+- **Einstellungen**: Server-URL, Backend An/Aus, Geräte-Name
+- **Kalibrierung**: Über Web-Interface (keine Code-Änderung nötig)
+- **Standalone-Modus**: Waage ohne Backend nutzen
+
+Siehe ausführliche Anleitung: [arduino/README_WEBUI.md](arduino/README_WEBUI.md)
 
 #### 3️⃣ Kalibrierung der Waage
 
