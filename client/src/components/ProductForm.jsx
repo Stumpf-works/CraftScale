@@ -7,17 +7,18 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import {
-  Save, Image as ImageIcon, Weight, Flask, Clock, Euro,
-  Package, TrendingUp, DollarSign, Plus, X, Hash
+  Save, Image as ImageIcon, Weight, Beaker, Clock, Euro,
+  Package, TrendingUp, DollarSign, Plus, X, Hash, Camera
 } from 'lucide-react';
 import { API_BASE, API_URL } from '../config';
 import { useWeight } from '../hooks/useWeight';
 
-export default function ProductForm({ onProductCreated }) {
-  const { weight } = useWeight();
+export default function ProductForm({ onProductCreated, initialWeight }) {
+  const { weight: liveWeight = 0 } = useWeight();
 
   // Form State
   const [name, setName] = useState('');
+  const [productWeight, setProductWeight] = useState(initialWeight || 0);
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [materials, setMaterials] = useState([{ material_id: '', quantity_used: 0 }]);
@@ -37,6 +38,14 @@ export default function ProductForm({ onProductCreated }) {
   const [sellingPrice, setSellingPrice] = useState(0);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+
+  // Update weight from initialWeight if provided
+  useEffect(() => {
+    if (initialWeight) {
+      setProductWeight(initialWeight);
+    }
+  }, [initialWeight]);
 
   // Load materials
   useEffect(() => {
@@ -91,6 +100,29 @@ export default function ProductForm({ onProductCreated }) {
     }
   }
 
+  async function capturePhoto() {
+    setIsCapturing(true);
+    try {
+      const response = await axios.post(`${API_BASE}/camera/capture`);
+
+      if (response.data.success) {
+        // Foto-URL von Server
+        const photoUrl = `${API_URL}${response.data.url}`;
+        setPhotoPreview(photoUrl);
+
+        // Speichere den Dateinamen für den Upload
+        setPhoto({ filename: response.data.filename, isFromCamera: true });
+
+        toast.success('Foto erfolgreich aufgenommen!');
+      }
+    } catch (error) {
+      console.error('Fehler beim Aufnehmen des Fotos:', error);
+      toast.error('Fehler beim Aufnehmen des Fotos');
+    } finally {
+      setIsCapturing(false);
+    }
+  }
+
   function addMaterialRow() {
     setMaterials([...materials, { material_id: '', quantity_used: 0 }]);
   }
@@ -108,7 +140,7 @@ export default function ProductForm({ onProductCreated }) {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    if (!name || weight <= 0) {
+    if (!name || productWeight <= 0) {
       toast.error('Name und Gewicht sind erforderlich');
       return;
     }
@@ -118,7 +150,7 @@ export default function ProductForm({ onProductCreated }) {
     try {
       const formData = new FormData();
       formData.append('name', name);
-      formData.append('weight', weight);
+      formData.append('weight', productWeight);
       formData.append('materials', JSON.stringify(materials.filter(m => m.material_id)));
       formData.append('labor_minutes', laborMinutes);
       formData.append('hourly_rate', hourlyRate);
@@ -127,7 +159,13 @@ export default function ProductForm({ onProductCreated }) {
       formData.append('description', description);
 
       if (photo) {
-        formData.append('photo', photo);
+        if (photo.isFromCamera) {
+          // Foto wurde mit Webcam aufgenommen - bereits auf Server
+          formData.append('photo_filename', photo.filename);
+        } else {
+          // Foto wurde hochgeladen
+          formData.append('photo', photo);
+        }
       }
 
       await axios.post(`${API_BASE}/products`, formData, {
@@ -138,6 +176,7 @@ export default function ProductForm({ onProductCreated }) {
 
       // Reset form
       setName('');
+      setProductWeight(0);
       setPhoto(null);
       setPhotoPreview(null);
       setMaterials([{ material_id: '', quantity_used: 0 }]);
@@ -158,15 +197,17 @@ export default function ProductForm({ onProductCreated }) {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Foto Upload */}
-        <div className="glass-card p-6">
-          <label className="block text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <ImageIcon size={20} />
-            Produktfoto
-          </label>
+        <div className="card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="icon-badge bg-gradient-to-br from-violet-100 to-violet-50">
+              <ImageIcon size={18} className="text-violet-600" />
+            </div>
+            <label className="text-base font-bold text-white">Produktfoto</label>
+          </div>
 
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-indigo-500 transition-colors">
+          <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center hover:border-violet-400 transition-all duration-200 bg-gradient-to-br from-gray-50 to-white">
             {photoPreview ? (
               <div className="relative inline-block">
                 <img
@@ -188,67 +229,106 @@ export default function ProductForm({ onProductCreated }) {
             ) : (
               <div>
                 <ImageIcon size={48} className="mx-auto text-gray-400 mb-4" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handlePhotoChange}
-                  className="hidden"
-                  id="photo-upload"
-                />
-                <label
-                  htmlFor="photo-upload"
-                  className="btn-gradient cursor-pointer inline-block"
-                >
-                  Foto auswählen
-                </label>
+                <div className="flex gap-3 justify-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                    className="hidden"
+                    id="photo-upload"
+                  />
+                  <label
+                    htmlFor="photo-upload"
+                    className="btn btn-outline cursor-pointer inline-flex items-center gap-2"
+                  >
+                    <ImageIcon size={18} />
+                    Datei wählen
+                  </label>
+                  <button
+                    type="button"
+                    onClick={capturePhoto}
+                    disabled={isCapturing}
+                    className="btn btn-primary inline-flex items-center gap-2"
+                  >
+                    {isCapturing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                        Aufnahme...
+                      </>
+                    ) : (
+                      <>
+                        <Camera size={18} />
+                        Mit Webcam aufnehmen
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             )}
           </div>
         </div>
 
         {/* Produkt-Informationen */}
-        <div className="glass-card p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Produkt-Informationen</h3>
+        <div className="card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="icon-badge bg-gradient-to-br from-blue-100 to-blue-50">
+              <Package size={18} className="text-blue-600" />
+            </div>
+            <h3 className="text-base font-bold text-white">Produkt-Informationen</h3>
+          </div>
 
           <div className="space-y-4">
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-200 mb-2">
                 Produktname *
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="input-field w-full"
+                className="input w-full"
                 placeholder="z.B. Epoxidharz Untersetzer"
                 required
               />
             </div>
 
-            {/* Gewicht (readonly) */}
+            {/* Gewicht */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2">
                 <Weight size={16} />
-                Gewicht (automatisch von Waage)
+                Gewicht
               </label>
-              <input
-                type="text"
-                value={`${weight.toFixed(2)} g`}
-                readOnly
-                className="input-field w-full bg-gray-100 cursor-not-allowed"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  step="0.01"
+                  value={productWeight}
+                  onChange={(e) => setProductWeight(parseFloat(e.target.value) || 0)}
+                  className="input flex-1"
+                  placeholder="Gewicht in Gramm"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setProductWeight(liveWeight || 0)}
+                  className="px-4 py-2 bg-[#4a9ff5] hover:bg-[#3b8ee6] text-white rounded-lg transition-all text-sm whitespace-nowrap"
+                  title="Aktuelles Gewicht von Waage übernehmen"
+                >
+                  Live: {(liveWeight || 0).toFixed(1)}g
+                </button>
+              </div>
             </div>
 
             {/* Beschreibung */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-200 mb-2">
                 Beschreibung (optional)
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="input-field w-full"
+                className="input w-full"
                 rows="3"
                 placeholder="Kurze Beschreibung des Produkts..."
               />
@@ -257,16 +337,18 @@ export default function ProductForm({ onProductCreated }) {
         </div>
 
         {/* Materialien */}
-        <div className="glass-card p-6">
+        <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-              <Flask size={20} />
-              Materialien
-            </h3>
+            <div className="flex items-center gap-2">
+              <div className="icon-badge bg-gradient-to-br from-green-100 to-green-50">
+                <Beaker size={18} className="text-green-600" />
+              </div>
+              <h3 className="text-base font-bold text-white">Materialien</h3>
+            </div>
             <button
               type="button"
               onClick={addMaterialRow}
-              className="btn-gradient text-sm flex items-center gap-1"
+              className="btn btn-primary text-sm flex items-center gap-1"
             >
               <Plus size={16} />
               Material hinzufügen
@@ -279,7 +361,7 @@ export default function ProductForm({ onProductCreated }) {
                 <select
                   value={mat.material_id}
                   onChange={(e) => updateMaterial(index, 'material_id', e.target.value)}
-                  className="input-field flex-1"
+                  className="input flex-1"
                 >
                   <option value="">Material wählen...</option>
                   {availableMaterials.map(m => (
@@ -315,13 +397,18 @@ export default function ProductForm({ onProductCreated }) {
         </div>
 
         {/* Kosten */}
-        <div className="glass-card p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Kosten & Preise</h3>
+        <div className="card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="icon-badge bg-gradient-to-br from-orange-100 to-orange-50">
+              <Euro size={18} className="text-orange-600" />
+            </div>
+            <h3 className="text-base font-bold text-white">Kosten & Preise</h3>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Arbeitszeit */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2">
                 <Clock size={16} />
                 Arbeitszeit (Minuten)
               </label>
@@ -329,14 +416,14 @@ export default function ProductForm({ onProductCreated }) {
                 type="number"
                 value={laborMinutes}
                 onChange={(e) => setLaborMinutes(parseFloat(e.target.value) || 0)}
-                className="input-field w-full"
+                className="input w-full"
                 step="1"
               />
             </div>
 
             {/* Stundenlohn */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2">
                 <Euro size={16} />
                 Stundenlohn (€)
               </label>
@@ -344,14 +431,14 @@ export default function ProductForm({ onProductCreated }) {
                 type="number"
                 value={hourlyRate}
                 onChange={(e) => setHourlyRate(parseFloat(e.target.value) || 0)}
-                className="input-field w-full"
+                className="input w-full"
                 step="0.50"
               />
             </div>
 
             {/* Fixkosten */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2">
                 <Package size={16} />
                 Fixkosten (€)
               </label>
@@ -359,14 +446,14 @@ export default function ProductForm({ onProductCreated }) {
                 type="number"
                 value={fixedCost}
                 onChange={(e) => setFixedCost(parseFloat(e.target.value) || 0)}
-                className="input-field w-full"
+                className="input w-full"
                 step="0.10"
               />
             </div>
 
             {/* Gewinnmarge */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2">
                 <TrendingUp size={16} />
                 Gewinnmarge (%)
               </label>
@@ -374,7 +461,7 @@ export default function ProductForm({ onProductCreated }) {
                 type="number"
                 value={profitMargin}
                 onChange={(e) => setProfitMargin(parseFloat(e.target.value) || 0)}
-                className="input-field w-full"
+                className="input w-full"
                 step="1"
               />
             </div>
@@ -382,32 +469,37 @@ export default function ProductForm({ onProductCreated }) {
         </div>
 
         {/* Kosten-Summary */}
-        <div className="glass-card p-6 bg-gradient-to-br from-indigo-50 to-purple-50">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Kalkulation</h3>
+        <div className="card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="icon-badge bg-gradient-to-br from-violet-100 to-violet-50">
+              <DollarSign size={18} className="text-violet-600" />
+            </div>
+            <h3 className="text-base font-bold text-white">Kalkulation</h3>
+          </div>
 
-          <div className="space-y-3">
-            <div className="flex justify-between items-center text-gray-700">
-              <span>Materialkosten:</span>
-              <span className="font-semibold">{materialCost.toFixed(2)} €</span>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center p-3 bg-gradient-to-br from-gray-50 to-white rounded-lg border border-gray-100">
+              <span className="text-sm font-medium text-gray-600">Materialkosten</span>
+              <span className="text-base font-bold text-white">{materialCost.toFixed(2)} €</span>
             </div>
-            <div className="flex justify-between items-center text-gray-700">
-              <span>Arbeitskosten:</span>
-              <span className="font-semibold">{laborCost.toFixed(2)} €</span>
+            <div className="flex justify-between items-center p-3 bg-gradient-to-br from-gray-50 to-white rounded-lg border border-gray-100">
+              <span className="text-sm font-medium text-gray-600">Arbeitskosten</span>
+              <span className="text-base font-bold text-white">{laborCost.toFixed(2)} €</span>
             </div>
-            <div className="flex justify-between items-center text-gray-700">
-              <span>Fixkosten:</span>
-              <span className="font-semibold">{parseFloat(fixedCost || 0).toFixed(2)} €</span>
+            <div className="flex justify-between items-center p-3 bg-gradient-to-br from-gray-50 to-white rounded-lg border border-gray-100">
+              <span className="text-sm font-medium text-gray-600">Fixkosten</span>
+              <span className="text-base font-bold text-white">{parseFloat(fixedCost || 0).toFixed(2)} €</span>
             </div>
-            <div className="border-t pt-3 flex justify-between items-center text-gray-800">
-              <span className="font-medium">Selbstkosten:</span>
-              <span className="font-bold">{totalCost.toFixed(2)} €</span>
+            <div className="flex justify-between items-center p-3 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-lg border-2 border-blue-200">
+              <span className="text-sm font-semibold text-blue-900">Selbstkosten</span>
+              <span className="text-lg font-black text-blue-900">{totalCost.toFixed(2)} €</span>
             </div>
-            <div className="border-t pt-3 flex justify-between items-center">
-              <span className="text-lg font-medium flex items-center gap-2">
-                <DollarSign size={20} className="text-green-500" />
-                Verkaufspreis:
+            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-violet-100 via-purple-50 to-blue-100 rounded-lg border-2 border-violet-300">
+              <span className="text-base font-bold flex items-center gap-2 text-violet-900">
+                <DollarSign size={20} />
+                Verkaufspreis
               </span>
-              <span className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-emerald-600">
+              <span className="text-3xl font-black bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
                 {sellingPrice.toFixed(2)} €
               </span>
             </div>
@@ -417,8 +509,8 @@ export default function ProductForm({ onProductCreated }) {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isSubmitting || weight <= 0}
-          className="btn-gradient w-full py-4 text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isSubmitting || productWeight <= 0}
+          className="btn btn-primary w-full py-4 text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (
             <>

@@ -57,8 +57,8 @@ export default function ProductList({ refreshTrigger }) {
 
   if (isLoading) {
     return (
-      <div className="glass-card p-12 text-center">
-        <Loader size={48} className="mx-auto text-indigo-500 animate-spin mb-4" />
+      <div className="card p-12 text-center">
+        <Loader size={48} className="mx-auto text-blue-500 animate-spin mb-4" />
         <p className="text-gray-600">Lade Produkte...</p>
       </div>
     );
@@ -67,7 +67,7 @@ export default function ProductList({ refreshTrigger }) {
   return (
     <div className="space-y-6">
       {/* Search Bar */}
-      <div className="glass-card p-4">
+      <div className="card p-4">
         <div className="relative">
           <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
@@ -75,14 +75,14 @@ export default function ProductList({ refreshTrigger }) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Produkte suchen..."
-            className="input-field w-full pl-10"
+            className="input w-full pl-10"
           />
         </div>
       </div>
 
       {/* Products Table */}
       {filteredProducts.length === 0 ? (
-        <div className="glass-card p-12 text-center">
+        <div className="card p-12 text-center">
           <QrCode size={48} className="mx-auto text-gray-400 mb-4" />
           <p className="text-gray-600 text-lg">
             {searchTerm ? 'Keine Produkte gefunden' : 'Noch keine Produkte vorhanden'}
@@ -92,10 +92,10 @@ export default function ProductList({ refreshTrigger }) {
           </p>
         </div>
       ) : (
-        <div className="glass-card overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
+              <thead className="bg-blue-50">
                 <tr>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Foto</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Name</th>
@@ -110,7 +110,7 @@ export default function ProductList({ refreshTrigger }) {
                 {filteredProducts.map(product => (
                   <tr
                     key={product.id}
-                    className="hover:bg-indigo-50/50 transition-colors"
+                    className="hover:bg-blue-50/50 transition-colors"
                   >
                     <td className="px-6 py-4">
                       {product.photo_path ? (
@@ -147,7 +147,7 @@ export default function ProductList({ refreshTrigger }) {
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleShowBarcode(product)}
-                          className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="Barcode anzeigen"
                         >
                           <QrCode size={20} />

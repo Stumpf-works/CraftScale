@@ -111,6 +111,7 @@ function createSchema() {
         CREATE TABLE IF NOT EXISTS current_weight (
           id INTEGER PRIMARY KEY CHECK (id = 1),
           weight REAL NOT NULL,
+          raw_value INTEGER DEFAULT 0,
           timestamp TEXT NOT NULL,
           received_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -119,8 +120,28 @@ function createSchema() {
 
         // Initialen Wert einfügen falls nicht vorhanden
         db.run(`
-          INSERT OR IGNORE INTO current_weight (id, weight, timestamp)
-          VALUES (1, 0.0, datetime('now'))
+          INSERT OR IGNORE INTO current_weight (id, weight, timestamp, raw_value)
+          VALUES (1, 0.0, datetime('now'), 0)
+        `, (err) => {
+          if (err) reject(err);
+        });
+      });
+
+      // Tabelle: calibration (nur 1 Zeile!)
+      db.run(`
+        CREATE TABLE IF NOT EXISTS calibration (
+          id INTEGER PRIMARY KEY CHECK (id = 1),
+          factor REAL NOT NULL DEFAULT -7050.0,
+          offset REAL NOT NULL DEFAULT 0,
+          last_calibrated DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `, (err) => {
+        if (err) reject(err);
+
+        // Initialen Wert einfügen falls nicht vorhanden
+        db.run(`
+          INSERT OR IGNORE INTO calibration (id, factor, offset)
+          VALUES (1, -7050.0, 0)
         `, (err) => {
           if (err) reject(err);
           else resolve();

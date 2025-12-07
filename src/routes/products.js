@@ -115,7 +115,8 @@ router.post('/', upload.single('photo'), async (req, res) => {
       hourly_rate,
       fixed_cost,
       profit_margin,
-      description
+      description,
+      photo_filename // Foto von Webcam bereits auf Server
     } = req.body;
 
     // Validierung
@@ -158,8 +159,8 @@ router.post('/', upload.single('photo'), async (req, res) => {
     const sku = generateSKU(name);
     const barcode = generateEAN13();
 
-    // Foto-Pfad
-    const photo_path = req.file ? req.file.filename : null;
+    // Foto-Pfad (entweder hochgeladen oder von Webcam)
+    const photo_path = req.file ? req.file.filename : (photo_filename || null);
 
     // Produkt einfügen
     const result = await db.run(

@@ -1,71 +1,119 @@
 /**
  * CraftScale by Stumpf.works
- * Live Gewichtsanzeige Component
+ * Clean Professional Weight Scale Interface
  */
 
-import React from 'react';
-import { Scale, Loader, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Scale, Settings, Plus } from 'lucide-react';
 import { useWeight } from '../hooks/useWeight';
 
 export default function WeighScale() {
-  const { weight, isLoading, error, isOnline } = useWeight();
+  const navigate = useNavigate();
+  const {
+    weight,
+    rawValue,
+    isLoading,
+    isOnline,
+    performTare
+  } = useWeight();
 
-  // Status ermitteln
-  const getStatus = () => {
-    if (!isOnline) return { text: 'Server nicht erreichbar', color: 'text-red-500', icon: AlertCircle };
-    if (isLoading) return { text: 'Verbinde...', color: 'text-gray-500', icon: Loader };
-    if (weight > 0.5) return { text: 'Gewicht erkannt ✓', color: 'text-green-500', icon: Scale };
-    return { text: 'Warte auf Messung', color: 'text-gray-500', icon: Scale };
+  const [calibrationStatus, setCalibrationStatus] = useState(null);
+
+  const handleTare = async () => {
+    setCalibrationStatus({ type: 'info', message: 'Setze Tara...' });
+    const result = await performTare();
+    if (result.success) {
+      setCalibrationStatus({ type: 'success', message: 'Tara erfolgreich gesetzt' });
+      setTimeout(() => setCalibrationStatus(null), 2000);
+    } else {
+      setCalibrationStatus({ type: 'error', message: result.error });
+    }
   };
 
-  const status = getStatus();
-  const StatusIcon = status.icon;
+  const handleCreateProduct = () => {
+    // Navigate to products page with current weight
+    navigate('/products', { state: { initialWeight: weight } });
+  };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="glass-card p-8 text-center">
-        {/* Header */}
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <Scale size={32} className="text-indigo-500" />
-          <h2 className="text-3xl font-bold text-gray-800">Live Waage</h2>
+    <div className="max-w-7xl mx-auto p-4">
+      {/* Status Message */}
+      {calibrationStatus && (
+        <div className={`p-3 rounded-lg text-sm mb-4 border ${
+          calibrationStatus.type === 'success' ? 'bg-green-500/10 text-green-400 border-green-500/30' :
+          calibrationStatus.type === 'error' ? 'bg-red-500/10 text-red-400 border-red-500/30' :
+          'bg-blue-500/10 text-blue-400 border-blue-500/30'
+        }`}>
+          {calibrationStatus.message}
         </div>
+      )}
 
-        {/* Gewichtsanzeige */}
-        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-12 mb-6">
-          <div className={`${weight > 0.5 ? 'weight-display' : ''}`}>
-            <div className="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-600">
-              {weight.toFixed(2)}
+      {/* Main Grid: Live Weight (left) + Product Form (right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+        {/* Left Column: Live Weight Display + Tare Button */}
+        <div className="space-y-4">
+          {/* Weight Display - Compact */}
+          <div className="card p-6">
+            <div className="text-center">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/20 text-blue-400 rounded-full mb-4 text-xs font-semibold border border-blue-500/30">
+                <Scale size={14} />
+                Live-Anzeige
+              </div>
+
+              <div className="text-7xl font-black bg-gradient-to-r from-blue-400 via-blue-300 to-cyan-400 bg-clip-text text-transparent mb-3 tabular-nums leading-none">
+                {weight.toFixed(2)}
+              </div>
+              <div className="text-xl font-semibold text-gray-400 mb-4">Gramm</div>
+
+              {/* Status & RAW Value */}
+              <div className="flex items-center justify-center gap-4 pt-4 border-t border-gray-700">
+                <div className="flex items-center gap-2">
+                  <span className={`status-dot ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                  <span className="text-sm font-medium text-gray-300">{isOnline ? 'Online' : 'Offline'}</span>
+                </div>
+                <div className="flex items-center gap-2 px-2 py-1 bg-gray-700 rounded border border-gray-600">
+                  <div className="text-xs font-semibold text-gray-400">RAW</div>
+                  <div className="font-mono text-xs font-bold text-gray-200">{rawValue}</div>
+                </div>
+              </div>
             </div>
-            <div className="text-2xl text-gray-600 mt-2">Gramm</div>
           </div>
+
+          {/* Tare Button - Below Weight Display */}
+          <button
+            onClick={handleTare}
+            disabled={!isOnline}
+            className="w-full btn btn-primary py-3 text-base"
+          >
+            Tara setzen
+          </button>
         </div>
 
-        {/* Status Badge */}
-        <div className={`badge ${!isOnline ? 'bg-red-100 text-red-700' : weight > 0.5 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-          <StatusIcon size={16} className={isLoading ? 'animate-spin' : ''} />
-          {status.text}
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-            <AlertCircle size={16} className="inline mr-2" />
-            {error}
+        {/* Right Column: Quick Product Creation */}
+        <div className="card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="icon-badge bg-blue-500/20 border border-blue-500/30">
+              <Plus size={18} className="text-blue-400" />
+            </div>
+            <h3 className="text-base font-bold text-gray-100">Produkt erstellen</h3>
           </div>
-        )}
 
-        {/* Offline Warning */}
-        {!isOnline && (
-          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm">
-            <AlertCircle size={16} className="inline mr-2" />
-            Server nicht erreichbar. Bitte prüfen Sie die Verbindung.
+          <div className="text-sm text-gray-400 mb-4">
+            Aktuelles Gewicht: <span className="font-bold text-blue-400">{weight.toFixed(2)}g</span>
           </div>
-        )}
 
-        {/* Info */}
-        <div className="mt-8 text-sm text-gray-500">
-          <p>Legen Sie ein Objekt auf die Waage.</p>
-          <p className="mt-1">Das Gewicht wird automatisch erkannt und aktualisiert.</p>
+          <button
+            onClick={handleCreateProduct}
+            className="w-full btn btn-primary py-3"
+          >
+            Neues Produkt mit {weight.toFixed(2)}g erstellen
+          </button>
+
+          <div className="mt-4 pt-4 border-t border-gray-700 text-xs text-gray-500 text-center">
+            Vollständiges Formular im "Produkte"-Tab
+          </div>
         </div>
       </div>
     </div>

@@ -20,6 +20,7 @@ const materialsRoutes = require('./src/routes/materials');
 const productsRoutes = require('./src/routes/products');
 const exportRoutes = require('./src/routes/export');
 const barcodeRoutes = require('./src/routes/barcode');
+const cameraRoutes = require('./src/routes/camera');
 
 // Konfiguration
 const PORT = process.env.PORT || 3000;
@@ -93,6 +94,7 @@ app.use('/api/materials', materialsRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/barcode', barcodeRoutes);
+app.use('/api/camera', cameraRoutes);
 
 // Health Check
 app.get('/api/health', (req, res) => {
@@ -190,6 +192,29 @@ db.initialize()
       logger.info('Drücke CTRL+C zum Beenden');
       logger.info('═══════════════════════════════════════════════════════');
     });
+
+    // Socket.IO für Realtime Weight Updates
+    const io = require('socket.io')(server, {
+      cors: {
+        origin: '*',
+        methods: ['GET', 'POST']
+      }
+    });
+
+    let connectedClients = 0;
+
+    io.on('connection', (socket) => {
+      connectedClients++;
+      logger.info(`WebSocket Client verbunden (${connectedClients} aktiv)`);
+
+      socket.on('disconnect', () => {
+        connectedClients--;
+        logger.info(`WebSocket Client getrennt (${connectedClients} aktiv)`);
+      });
+    });
+
+    // Socket.IO Instance global verfügbar machen
+    app.set('io', io);
 
     // Graceful Shutdown
     const shutdown = (signal) => {

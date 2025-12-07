@@ -1,484 +1,630 @@
-# ⚖️ CraftScale by Stumpf.works
+# ⚖️ CraftScale
 
-Ein vollständiges DIY Epoxidharz Management System mit intelligenter Waage, Produktverwaltung und SumUp-Export.
+**Professionelles Produktverwaltungs-System mit intelligenter Waage**
+
+> Entwickelt von **Stumpf.works** für Handwerker, Künstler und Kleinunternehmer
+
+---
+
+## 📖 Was ist CraftScale?
+
+CraftScale ist ein **komplettes Management-System** für die Verwaltung handgefertigter Produkte. Es kombiniert eine präzise digitale Waage mit einer modernen Web-Anwendung, um dir bei folgenden Aufgaben zu helfen:
+
+- 📦 **Produktverwaltung** - Produkte erfassen mit Gewicht, Foto und Beschreibung
+- 💰 **Kostenkalkulation** - Automatische Berechnung von Material-, Arbeits- und Verkaufspreisen
+- 🧪 **Materialverwaltung** - Lagerbestand und Kosten im Überblick
+- 🏷️ **Barcode-Generierung** - EAN-13 Barcodes für professionelle Etiketten
+- 📊 **Export-Funktionen** - PDF und Excel für Berichte
+- 📸 **Webcam-Integration** - Produktfotos direkt aufnehmen
+- ⚖️ **Live-Gewichtsmessung** - Echtzeit-Anzeige der Waage im Browser
+
+---
+
+## ✨ Hauptmerkmale
+
+### 🎯 Einfach zu bedienen
+- Modernes, intuitives Web-Interface
+- Kein App-Download nötig - läuft im Browser
+- Zugriff von jedem Gerät im Netzwerk (PC, Tablet, Smartphone)
+
+### 🔒 Datenschutz
+- Läuft **komplett lokal** in deinem Netzwerk
+- Keine Cloud, keine externen Server
+- Deine Daten bleiben bei dir
+
+### 💪 Professionell
+- Automatische Kostenberechnung
+- Gewinnmarge-Kalkulation
+- Export für Buchhaltung
+- Barcode-Generierung
+
+---
+
+## 🏗️ System-Übersicht
 
 ```
-╔═══════════════════════════════════════════════════════════╗
-║                                                           ║
-║     ⚖️  CraftScale by Stumpf.works                        ║
-║                                                           ║
-║     DIY Epoxidharz Management System                      ║
-║     Version 1.0                                           ║
-║                                                           ║
-╚═══════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────┐
+│                    Raspberry Pi                          │
+│                                                          │
+│  ┌────────────────┐           ┌──────────────────┐     │
+│  │  HX711 Waage   │  GPIO     │   Node.js        │     │
+│  │  (Python)      │◄─────────►│   Server         │     │
+│  └────────────────┘           │   + SQLite       │     │
+│         ▲                      │   + React App    │     │
+│         │                      └──────────────────┘     │
+│    Wägezelle                          │                 │
+└───────────────────────────────────────┼─────────────────┘
+                                        │
+                                   Netzwerk
+                                        │
+                            ┌───────────┴───────────┐
+                            ▼                       ▼
+                    ┌──────────────┐        ┌──────────────┐
+                    │   Browser    │        │   Browser    │
+                    │   (Desktop)  │        │   (Tablet)   │
+                    └──────────────┘        └──────────────┘
 ```
 
-## 📋 Features
+**So funktioniert's:**
+1. **HX711** am Raspberry Pi misst das Gewicht über die Wägezelle
+2. **Python Script** liest den Sensor aus und sendet Daten an den Server
+3. **Node.js Server** verarbeitet die Daten und speichert sie in SQLite
+4. **React Web-App** zeigt alles schön aufbereitet im Browser an
+5. Du greifst von jedem Gerät im Netzwerk darauf zu
 
-- **🔄 Live Waage**: ESP8266 + HX711 + 1kg Wägezelle für automatische Gewichtserkennung
-- **🌐 ESP8266 Web-Interface**: Konfiguration, Kalibrierung und Standalone-Modus direkt am Gerät
-- **📦 Produktverwaltung**: Fotos, Gewicht, Materialverbrauch, automatische Preiskalkulation
-- **🧪 Material-Manager**: Harz, Härter, Pigmente, Formen verwalten
-- **💰 Kosten-Kalkulation**: Material + Arbeit + Fixkosten + Gewinnmarge = Verkaufspreis
-- **📊 SumUp Export**: CSV-Export für direkten Import in SumUp Kassensystem
-- **🏷️ Barcode-Generation**: EAN-13 Barcodes für Brother P-Touch Etikettendrucker
-- **🎨 React Web-Interface**: Modernes Frontend mit Tailwind CSS
-- **🔌 Local Network**: Läuft im lokalen Netzwerk ohne Cloud
-- **📱 Mobile Ready**: Zugriff von Smartphone, Tablet oder Desktop
+---
 
-## 🏗️ System-Architektur
+## 📋 Was du brauchst
 
-```
-┌─────────────────┐         WiFi          ┌──────────────────┐
-│   ESP8266       │ ◄─────────────────► │   Server         │
-│   + HX711       │   HTTP POST /weight   │   Node.js        │
-│   + Wägezelle   │                       │   + Express      │
-└─────────────────┘                       │   + SQLite       │
-                                          └──────────────────┘
-                                                 │
-                                                 │ Serves
-                                                 │
-                                          ┌──────────────────┐
-                                          │   Web Interface  │
-                                          │   React + Vite   │
-                                          └──────────────────┘
-                                                 ▲
-                                                 │
-                                          Browser (Laptop/Tablet/Smartphone)
-```
+### Hardware
 
-## 🚀 Schnellstart
+| Komponente | Beschreibung | Geschätzte Kosten |
+|------------|--------------|-------------------|
+| **Raspberry Pi** | Modell 3B+ oder neuer (läuft auch auf Pi Zero 2 W) | ~40€ |
+| **HX711 Modul** | Load Cell Amplifier (24-Bit ADC) | ~3€ |
+| **Wägezelle** | Load Cell (z.B. 5kg) | ~5€ |
+| **Jumper Kabel** | Female-Female, 4 Stück für HX711 | ~2€ |
+| *Optional:* **USB Webcam** | Für Produktfotos | ~15€ |
+| **Gesamt** | | **~50-65€** |
 
-### Voraussetzungen
+### Software (wird installiert)
 
-- **Server**: Raspberry Pi 3+, Mini-PC oder VPS mit Node.js 16+
-- **Hardware**: ESP8266 NodeMCU, HX711, 1kg Wägezelle
-- **Netzwerk**: Lokales WiFi (2.4 GHz für ESP8266)
+- **Raspberry Pi OS** (Lite oder Desktop)
+- **Node.js** (v16 oder neuer)
+- **Python 3** (für HX711 Sensor)
+- **Git**
 
-### Installation
+---
 
-#### 1️⃣ Server-Installation
+## 🚀 Installation
+
+### Schritt 1: Raspberry Pi vorbereiten
 
 ```bash
+# System aktualisieren
+sudo apt update && sudo apt upgrade -y
+
+# Benötigte Software installieren
+sudo apt install -y git nodejs npm python3 python3-pip
+
+# Python Bibliotheken für HX711
+sudo pip3 install RPi.GPIO hx711
+```
+
+### Schritt 2: CraftScale herunterladen
+
+```bash
+# Ins Home-Verzeichnis wechseln
+cd ~
+
 # Repository klonen
-git clone https://github.com/yourusername/craftscale.git
-cd craftscale
+git clone https://github.com/DEIN-USERNAME/CraftScale.git
 
-# Dependencies installieren
-npm run install:all
+# Ins Projekt-Verzeichnis
+cd CraftScale
+```
 
-# .env konfigurieren
-cp .env.example .env
-# Bearbeiten Sie .env und tragen Sie Ihre Server-IP ein!
+### Schritt 3: Server installieren
 
-# Frontend bauen
+```bash
+# Server-Dependencies installieren
+npm install
+
+# Client-Dependencies installieren
+cd client
+npm install
+cd ..
+```
+
+### Schritt 4: Client bauen
+
+```bash
+cd client
 npm run build
+cd ..
+```
 
+### Schritt 5: Waage anschließen
+
+**Jetzt wird's hardwaremäßig!**
+
+Folge der detaillierten Anleitung in [WIRING.md](WIRING.md) um:
+- HX711 an den Raspberry Pi anzuschließen
+- Wägezelle richtig zu verkabeln
+- Alles zu testen
+
+### Schritt 6: Server starten
+
+```bash
 # Server starten
-npm start
+node server.js
 ```
 
-**Server läuft nun auf**: `http://IHRE_SERVER_IP:3000`
-
-#### 2️⃣ Arduino-Setup
-
-**Hardware-Verkabelung:**
-
+Du siehst eine Meldung wie:
 ```
-ESP8266 NodeMCU          HX711
-─────────────────        ─────────
-3.3V        ────────►    VCC
-GND         ────────►    GND
-D5 (GPIO14) ────────►    DT
-D6 (GPIO12) ────────►    SCK
-
-
-HX711                    Wägezelle (1kg Load Cell)
-─────────                ──────────────────────────
-E+          ────────►    Rot (E+)
-E-          ────────►    Schwarz (E-)
-A-          ────────►    Grün (A-)
-A+          ────────►    Weiß (A+)
+✓ Server läuft auf http://192.168.178.40:3000
+✓ Datenbank verbunden
+✓ Socket.IO bereit
 ```
 
-**Software:**
+### Schritt 7: Im Browser öffnen
 
-**WICHTIG: Zwei Versionen verfügbar!**
+Öffne deinen Browser und gehe zu:
+```
+http://IP-DEINES-PI:3000
+```
 
-1. **`esp8266_scale.ino`** - Original (WiFi/Server im Code konfigurieren)
-2. **`esp8266_scale_with_webui.ino`** - ⭐ **NEU mit Web-Interface** (Empfohlen!)
+Zum Beispiel: `http://192.168.178.40:3000`
 
-**Installation (Web-Interface Version):**
+**🎉 Fertig! CraftScale läuft jetzt!**
 
-1. Arduino IDE installieren (https://www.arduino.cc/en/software)
-2. ESP8266 Board Support installieren:
-   - Arduino IDE → Datei → Voreinstellungen
-   - Zusätzliche Boardverwalter-URLs: `http://arduino.esp8266.com/stable/package_esp8266com_index.json`
-   - Werkzeuge → Board → Boardverwalter → "esp8266" suchen und installieren
-3. Bibliotheken installieren:
-   - Sketch → Bibliothek einbinden → Bibliotheken verwalten
-   - Installieren: `HX711`, `ArduinoJson`, `WiFiManager` (by tzapu)
-4. Code öffnen: `arduino/esp8266_scale_with_webui.ino`
-5. **Keine Code-Änderung nötig!** WiFi wird beim ersten Start konfiguriert
-6. Board auswählen: Werkzeuge → Board → ESP8266 Boards → NodeMCU 1.0
-7. Upload (Sketch → Hochladen)
+---
 
-**Erstkonfiguration (WiFi-Manager):**
+## 🔧 Autostart einrichten (Optional)
 
-1. ESP8266 startet im Konfigurations-Modus
-2. Mit WiFi verbinden: **"CraftScale-Waage"**
-3. Browser öffnet automatisch (oder `http://192.168.4.1`)
-4. Ihr WiFi-Netzwerk auswählen und Passwort eingeben
-5. IP-Adresse im Serial Monitor notieren
+Damit CraftScale automatisch beim Booten des Raspberry Pi startet:
 
-**Web-Interface der Waage:**
-
-Nach erfolgreicher WiFi-Verbindung:
-- Browser öffnen: `http://WAAGE_IP` (z.B. `http://192.168.1.50`)
-- **Live Gewichtsanzeige** im Browser
-- **Einstellungen**: Server-URL, Backend An/Aus, Geräte-Name
-- **Kalibrierung**: Über Web-Interface (keine Code-Änderung nötig)
-- **Standalone-Modus**: Waage ohne Backend nutzen
-
-Siehe ausführliche Anleitung: [arduino/README_WEBUI.md](arduino/README_WEBUI.md)
-
-#### 3️⃣ Kalibrierung der Waage
-
-1. Serial Monitor öffnen (115200 Baud)
-2. Waage sollte "0.00 g" anzeigen (ohne Gewicht)
-3. Bekanntes Gewicht auflegen (z.B. 100g)
-4. Wert im Serial Monitor ablesen (z.B. -705000)
-5. Kalibrierungsfaktor berechnen:
-   ```
-   CALIBRATION_FACTOR = abgelesener_Wert / bekanntes_Gewicht
-   Beispiel: -705000 / 100 = -7050
-   ```
-6. `CALIBRATION_FACTOR` im Arduino Code anpassen
-7. Code erneut hochladen
-8. Testen mit verschiedenen Gewichten
-
-## 💻 Verwendung
-
-### 1. Web-Interface öffnen
-
-Browser öffnen und zu `http://IHRE_SERVER_IP:3000` navigieren.
-
-**Tipp**: Bookmark anlegen für schnellen Zugriff!
-
-### 2. Material hinzufügen
-
-1. Tab "Materialien" öffnen
-2. Material-Daten eingeben:
-   - Name (z.B. "Epoxidharz 1kg")
-   - Typ (Harz, Härter, Pigment, Form, Sonstiges)
-   - Preis pro Einheit (z.B. 25.00 €)
-   - Einheit (ml, g, Stück)
-3. "Hinzufügen" klicken
-
-### 3. Produkt erstellen
-
-1. Tab "Wiegen" öffnen
-2. Objekt auf Waage legen (Gewicht wird automatisch erkannt)
-3. Formular ausfüllen:
-   - Produktname
-   - Foto hochladen (optional)
-   - Materialien auswählen + Mengen eingeben
-   - Arbeitszeit + Stundenlohn
-   - Fixkosten (Verpackung, Versand, etc.)
-   - Gewinnmarge (%)
-4. Kalkulation wird automatisch berechnet
-5. "Produkt erstellen" klicken
-6. SKU und Barcode werden automatisch generiert
-
-### 4. SumUp Export
-
-1. Tab "Export" öffnen
-2. Produkte für Export auswählen (Checkboxen)
-3. "CSV Download" klicken
-4. CSV in SumUp importieren
-
-### 5. Barcode drucken (Brother P-Touch)
-
-1. Tab "Export" öffnen
-2. Bei gewünschtem Produkt "Barcode anzeigen" klicken
-3. Rechtsklick auf Barcode → "Bild speichern unter"
-4. Brother P-Touch Editor öffnen
-5. Gespeichertes Barcode-Bild einfügen
-6. Etikettengröße anpassen
-7. Drucken
-
-## 🔧 Konfiguration
-
-### Environment Variables (.env)
+### Node.js Server als Service
 
 ```bash
-# Server
-PORT=3000
-NODE_ENV=production
-HOST=0.0.0.0
-
-# Server IP (für Client Build)
-VITE_API_URL=http://192.168.1.100:3000
-
-# Upload
-MAX_FILE_SIZE=5242880  # 5MB
-UPLOAD_DIR=./uploads
-
-# Database
-DB_PATH=./data/craftscale.db
-
-# Logging
-LOG_LEVEL=info
-LOG_DIR=./logs
+# Service-Datei erstellen
+sudo nano /etc/systemd/system/craftscale-server.service
 ```
 
-### Systemd Service (Auto-Start)
-
-Für automatischen Start beim Booten:
-
-```bash
-sudo nano /etc/systemd/system/craftscale.service
-```
-
+Füge ein:
 ```ini
 [Unit]
-Description=CraftScale Server
+Description=CraftScale Node.js Server
 After=network.target
 
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/craftscale
+WorkingDirectory=/home/pi/CraftScale
 ExecStart=/usr/bin/node server.js
 Restart=always
-Environment=NODE_ENV=production
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
 ```
 
 ```bash
-sudo systemctl enable craftscale
-sudo systemctl start craftscale
-sudo systemctl status craftscale
+# Service aktivieren
+sudo systemctl enable craftscale-server
+sudo systemctl start craftscale-server
+
+# Status prüfen
+sudo systemctl status craftscale-server
 ```
 
-## 📡 API Dokumentation
+### Python Scale Reader als Service
 
-### Endpoints
-
-#### Health Check
-```
-GET /api/health
-Response: { status: "ok", version: "1.0" }
+```bash
+# Service-Datei erstellen
+sudo nano /etc/systemd/system/craftscale-scale.service
 ```
 
-#### Weight
-```
-POST /api/weight
-Body: { weight: 123.45, timestamp: "1234567890" }
+Füge ein:
+```ini
+[Unit]
+Description=CraftScale HX711 Scale Reader
+After=network.target craftscale-server.service
 
-GET /api/weight/latest
-Response: { weight: 123.45, timestamp: "...", received_at: "..." }
-```
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/pi/CraftScale
+ExecStart=/usr/bin/python3 scale_reader.py
+Restart=always
+RestartSec=10
 
-#### Materials
-```
-GET /api/materials
-Response: [{ id, name, type, unit_price, unit, ... }]
-
-POST /api/materials
-Body: { name, type, unit_price, unit }
-
-DELETE /api/materials/:id
+[Install]
+WantedBy=multi-user.target
 ```
 
-#### Products
-```
-GET /api/products
-Response: [{ id, name, weight, photo_path, barcode, sku, ... }]
+```bash
+# Service aktivieren
+sudo systemctl enable craftscale-scale
+sudo systemctl start craftscale-scale
 
-POST /api/products
-Content-Type: multipart/form-data
-Fields: name, weight, photo, materials (JSON), labor_minutes, hourly_rate, etc.
-
-DELETE /api/products/:id
+# Status prüfen
+sudo systemctl status craftscale-scale
 ```
 
-#### Barcode
+---
+
+## 💻 Verwendung
+
+### 1. Waage kalibrieren
+
+**Wichtig!** Bevor du die Waage nutzen kannst, muss sie kalibriert werden:
+
+1. Gehe zu **Einstellungen** Tab
+2. Stelle sicher, dass die Waage **leer** ist
+3. Klicke **Tara setzen**
+4. Lege ein **bekanntes Gewicht** auf (z.B. 100g)
+5. Gib das Gewicht ein und klicke **Kalibrieren**
+6. Die Waage ist jetzt kalibriert!
+
+**Tipp:** Nutze mehrere Testgewichte (50g, 100g, 200g) für beste Genauigkeit.
+
+### 2. Material anlegen
+
+Bevor du Produkte erstellen kannst, lege deine Materialien an:
+
+1. Gehe zu **Materialien** Tab
+2. Klicke **Neues Material**
+3. Fülle aus:
+   - Name (z.B. "Epoxidharz 1kg")
+   - Einheit (ml, g, Stück)
+   - Preis pro Einheit (z.B. 25€ pro 1000g = 0.025€/g)
+   - Lagerbestand (optional)
+4. Klicke **Speichern**
+
+### 3. Produkt erstellen
+
+Jetzt wird's spannend!
+
+1. Gehe zu **Wiegen** Tab
+2. Lege dein fertiges Produkt auf die Waage
+3. Das Gewicht wird **automatisch** angezeigt
+4. Fülle das Formular aus:
+   - **Produktname**
+   - **Foto** (hochladen oder mit Webcam aufnehmen)
+   - **Materialien auswählen** und Mengen angeben
+   - **Arbeitszeit** in Minuten
+   - **Stundenlohn** (deine Zeit ist wertvoll!)
+   - **Fixkosten** (Verpackung, Versand, etc.)
+   - **Gewinnmarge** in %
+5. Das System berechnet **automatisch**:
+   - Materialkosten
+   - Arbeitskosten
+   - Selbstkosten
+   - Verkaufspreis
+6. Klicke **Produkt erstellen**
+7. Ein **Barcode** wird automatisch generiert!
+
+### 4. Produkte exportieren
+
+**PDF-Export:**
+1. Gehe zu **Export** Tab
+2. Klicke **PDF erstellen**
+3. Eine schöne Produktliste wird generiert
+
+**Excel-Export:**
+1. Gehe zu **Export** Tab
+2. Klicke **Excel exportieren**
+3. Perfekt für Buchhaltung!
+
+---
+
+## 📊 Beispiel-Kalkulation
+
+**Produkt:** Epoxidharz Untersetzer (120g)
+
+| Kostenart | Berechnung | Betrag |
+|-----------|------------|--------|
+| **Materialkosten** |
+| Epoxidharz | 100g × 0.025€/g | 2.50€ |
+| Härter | 50g × 0.020€/g | 1.00€ |
+| Pigment | 5g × 0.50€/g | 2.50€ |
+| Form (Abschreibung) | 1/20 × 12€ | 0.60€ |
+| **Summe Material** | | **6.60€** |
+| **Arbeitskosten** |
+| Arbeitszeit | 45 Min × 20€/h | 15.00€ |
+| **Fixkosten** |
+| Verpackung | | 1.50€ |
+| **Selbstkosten** | | **23.10€** |
+| **Gewinnmarge** | 30% | 6.93€ |
+| **Verkaufspreis** | | **30.03€** |
+
+➜ **Empfohlener VK: 29.99€** (gerundet)
+
+---
+
+## 🛠️ Problemlösungen
+
+### Server startet nicht
+
+**Problem:** `node server.js` gibt Fehler aus
+
+**Lösung:**
+```bash
+# Prüfe ob Port 3000 schon belegt ist
+sudo lsof -i :3000
+
+# Falls ja, Prozess beenden
+sudo kill -9 PID_DES_PROZESSES
+
+# Oder anderen Port nutzen
+PORT=8080 node server.js
 ```
-GET /api/barcode/:productId
-Response: PNG Image (EAN-13 Barcode)
-```
 
-#### Export
-```
-POST /api/export/sumup
-Body: { productIds: [1, 2, 3] }
-Response: CSV File (SumUp Format)
-```
+### Waage zeigt keine Werte
 
-## 🛠️ Troubleshooting
+**Problem:** Gewicht bleibt bei 0.00g
 
-### Server nicht erreichbar
+**Lösung:**
+1. Prüfe ob Python Script läuft:
+   ```bash
+   ps aux | grep scale_reader.py
+   ```
+2. Falls nicht, starte es:
+   ```bash
+   sudo python3 scale_reader.py
+   ```
+3. Prüfe Verkabelung (siehe [WIRING.md](WIRING.md))
+4. Prüfe Serial Output:
+   ```bash
+   sudo python3 scale_reader.py
+   # Siehst du Gewichtswerte in der Konsole?
+   ```
 
-**Problem**: Browser zeigt "Server Offline"
+### Gewicht ist ungenau
 
-**Lösung**:
-1. Server läuft? → `npm start` im Server-Verzeichnis
-2. Firewall: Port 3000 offen?
+**Problem:** Waage zeigt falsches Gewicht
+
+**Lösung:**
+1. Führe **erneute Kalibrierung** durch
+2. Stelle sicher, dass die Waage auf **stabiler Unterlage** steht
+3. Prüfe ob die **Wägezelle** richtig montiert ist
+4. Vermeide **Vibrationen** und Luftzug
+
+### Webcam funktioniert nicht
+
+**Problem:** Kann keine Fotos aufnehmen
+
+**Lösung:**
+1. Prüfe ob Webcam erkannt wird:
+   ```bash
+   lsusb
+   # Siehst du deine Webcam?
+   ```
+2. Prüfe Video-Devices:
+   ```bash
+   ls -la /dev/video*
+   ```
+3. Rechte setzen:
+   ```bash
+   sudo usermod -a -G video pi
+   # Danach neu anmelden!
+   ```
+
+### Browser zeigt "Verbindung fehlgeschlagen"
+
+**Problem:** Kann nicht auf Web-Interface zugreifen
+
+**Lösung:**
+1. Prüfe ob Server läuft:
+   ```bash
+   systemctl status craftscale-server
+   ```
+2. Finde IP-Adresse des Pi:
+   ```bash
+   hostname -I
+   ```
+3. Prüfe Firewall:
    ```bash
    sudo ufw allow 3000
    ```
-3. IP-Adresse korrekt in `.env`?
-4. Gleiche Netzwerk wie Client?
+4. Teste von Pi selbst:
+   ```bash
+   curl http://localhost:3000/api/health
+   ```
 
-### Arduino verbindet nicht
+---
 
-**Problem**: ESP8266 verbindet nicht mit WiFi
-
-**Lösung**:
-1. SSID und Passwort korrekt?
-2. 2.4 GHz WiFi (ESP8266 kann kein 5 GHz)
-3. Serial Monitor öffnen (115200 Baud) für Fehlerausgabe
-4. WiFi-Signal stark genug?
-
-**Problem**: Arduino sendet nicht an Server
-
-**Lösung**:
-1. Server-URL korrekt im Arduino Code?
-2. Server erreichbar im Netzwerk?
-3. Port 3000 offen?
-4. Serial Monitor: HTTP Response Code prüfen
-
-### Gewicht wird nicht übertragen
-
-**Problem**: Waage misst, sendet aber nicht
-
-**Lösung**:
-1. Gewicht stabil für 2 Sekunden?
-2. Kalibrierung korrekt?
-3. Serial Monitor für Debug-Ausgabe
-4. Server-URL im Arduino Code prüfen
-
-### Fotos werden nicht angezeigt
-
-**Problem**: Produktfotos laden nicht
-
-**Lösung**:
-1. `uploads/` Verzeichnis existiert?
-2. Schreibrechte für Server-User?
-3. Foto-URL korrekt: `http://SERVER_IP:3000/uploads/filename`
-4. Browser-Konsole für Fehler prüfen (F12)
-
-### Kalibrierung ungenau
-
-**Problem**: Waage zeigt falsches Gewicht
-
-**Lösung**:
-1. Mehrere Testgewichte verwenden (50g, 100g, 200g)
-2. Tara durchführen (Arduino Reset)
-3. Kalibrierungsfaktor feintunen
-4. Wägezelle korrekt verkabelt?
-5. Stabile Unterlage (Vibrationen vermeiden)
-
-## 💾 Backup & Restore
+## 💾 Backup & Wiederherstellung
 
 ### Backup erstellen
 
 ```bash
+# Backup-Verzeichnis erstellen
+mkdir -p ~/backups
+
 # Datenbank sichern
-cp data/craftscale.db backup/craftscale-$(date +%Y%m%d).db
+cp ~/CraftScale/craftscale.db ~/backups/craftscale-$(date +%Y%m%d).db
 
 # Fotos sichern
-tar -czf backup/uploads-$(date +%Y%m%d).tar.gz uploads/
+tar -czf ~/backups/uploads-$(date +%Y%m%d).tar.gz ~/CraftScale/uploads/
+
+# Alles zusammen sichern
+tar -czf ~/backups/craftscale-full-$(date +%Y%m%d).tar.gz \
+  ~/CraftScale/craftscale.db \
+  ~/CraftScale/uploads/
 ```
 
-### Restore
+### Automatisches Backup (täglich)
 
 ```bash
-# Datenbank wiederherstellen
-cp backup/craftscale-20250107.db data/craftscale.db
-
-# Fotos wiederherstellen
-tar -xzf backup/uploads-20250107.tar.gz
+# Backup-Script erstellen
+nano ~/backup-craftscale.sh
 ```
 
-**Automatisches Backup (Cron)**:
+Inhalt:
+```bash
+#!/bin/bash
+BACKUP_DIR=~/backups
+DATE=$(date +%Y%m%d)
+
+mkdir -p $BACKUP_DIR
+
+# Datenbank
+cp ~/CraftScale/craftscale.db $BACKUP_DIR/craftscale-$DATE.db
+
+# Fotos
+tar -czf $BACKUP_DIR/uploads-$DATE.tar.gz ~/CraftScale/uploads/
+
+# Alte Backups löschen (älter als 30 Tage)
+find $BACKUP_DIR -name "*.db" -mtime +30 -delete
+find $BACKUP_DIR -name "*.tar.gz" -mtime +30 -delete
+
+echo "Backup erstellt: $DATE"
+```
 
 ```bash
+# Ausführbar machen
+chmod +x ~/backup-craftscale.sh
+
+# Cronjob einrichten (täglich um 3 Uhr nachts)
 crontab -e
 ```
 
-```cron
-# Täglich um 3 Uhr morgens
-0 3 * * * /home/pi/craftscale/backup.sh
+Füge hinzu:
+```
+0 3 * * * /home/pi/backup-craftscale.sh >> /home/pi/backup.log 2>&1
 ```
 
-## 🔒 Sicherheit
-
-- **Nur lokales Netzwerk**: Keine Internet-Exposition empfohlen
-- **Keine Authentifizierung**: Vertrauen im lokalen Netzwerk
-- **File-Upload Validierung**: Typ + Größe geprüft
-- **SQL Injection Prevention**: Prepared Statements
-- **XSS Prevention**: React escaped automatisch
-
-**Optional: HTTPS mit self-signed Certificate**:
+### Wiederherstellung
 
 ```bash
-openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+# Datenbank wiederherstellen
+cp ~/backups/craftscale-20250107.db ~/CraftScale/craftscale.db
+
+# Fotos wiederherstellen
+tar -xzf ~/backups/uploads-20250107.tar.gz -C ~/
+
+# Server neu starten
+sudo systemctl restart craftscale-server
 ```
-
-Server.js anpassen für HTTPS (siehe Node.js HTTPS Dokumentation).
-
-## 📊 Beispiel-Kalkulation
-
-**Produkt**: Epoxidharz Untersetzer
-
-| Position | Berechnung | Betrag |
-|----------|------------|--------|
-| **Materialien** | | |
-| Epoxidharz | 50ml × 0.03 €/ml | 1.50 € |
-| Härter | 25ml × 0.02 €/ml | 0.50 € |
-| Pigment | 2ml × 0.50 €/ml | 1.00 € |
-| **Materialkosten Summe** | | **3.00 €** |
-| **Arbeitskosten** | | |
-| Arbeitszeit | 30 Min × 20 €/h | 10.00 € |
-| **Fixkosten** | | |
-| Verpackung + Versand | | 2.00 € |
-| **Selbstkosten** | 3.00 + 10.00 + 2.00 | **15.00 €** |
-| **Gewinnmarge** | 30% | 4.50 € |
-| **Verkaufspreis** | | **19.50 €** |
-
-## 📈 Roadmap
-
-- [ ] Multi-User Support mit Login
-- [ ] Lagerbestand-Tracking für Materialien
-- [ ] Bestellverwaltung
-- [ ] Statistiken & Dashboards
-- [ ] Mobile App (React Native)
-- [ ] Shopify Integration
-- [ ] Mehrsprachigkeit
-- [ ] Etiketten-Druck Vorlagen
-
-## 🤝 Mitwirken
-
-Contributions sind willkommen! Bitte öffnen Sie ein Issue oder Pull Request.
-
-## 📄 Lizenz
-
-MIT License - siehe [LICENSE](LICENSE)
-
-## 👨‍💻 Credits
-
-**Created by Stumpf.works**
-
-- Website: https://stumpf.works
-- Email: info@stumpf.works
-- GitHub: https://github.com/stumpfworks
 
 ---
 
-**⚖️ CraftScale - Ihr DIY Craft Management System**
+## 🔐 Sicherheit
 
-Made with ❤️ for the DIY Community
+### Netzwerk-Sicherheit
+
+- ✅ **Nur lokales Netzwerk:** CraftScale ist für lokale Nutzung konzipiert
+- ⚠️ **Keine Authentifizierung:** Jeder im Netzwerk kann zugreifen
+- ❌ **Nicht ins Internet:** Setze CraftScale NICHT öffentlich ins Internet
+
+### Empfehlungen
+
+1. **Separates WLAN:** Nutze ein eigenes WLAN nur für deine Geräte
+2. **Firewall:** Aktiviere die UFW Firewall und erlaube nur Port 3000
+3. **Regelmäßige Updates:**
+   ```bash
+   sudo apt update && sudo apt upgrade
+   ```
+4. **Starke Passwörter:** Ändere das Standard-Passwort des Raspberry Pi
+
+---
+
+## 📈 Technische Details
+
+### Verwendete Technologien
+
+**Backend:**
+- Node.js + Express (Web-Server)
+- SQLite3 (Datenbank)
+- Socket.IO (Echtzeit-Kommunikation)
+- Multer (Datei-Upload)
+- PDFKit (PDF-Generierung)
+- ExcelJS (Excel-Export)
+
+**Frontend:**
+- React 18 (UI Framework)
+- Vite (Build Tool)
+- Tailwind CSS (Styling)
+- Axios (HTTP Client)
+- Lucide Icons (Icons)
+
+**Hardware:**
+- Python 3 + RPi.GPIO (GPIO-Steuerung)
+- HX711 Library (Wägezellen-Auslesen)
+
+### API-Endpunkte
+
+| Methode | Endpunkt | Beschreibung |
+|---------|----------|--------------|
+| GET | `/api/health` | Server-Status prüfen |
+| GET | `/api/weight` | Aktuelles Gewicht abrufen |
+| POST | `/api/weight/update` | Gewicht aktualisieren (intern) |
+| POST | `/api/weight/tare` | Tara setzen |
+| POST | `/api/weight/calibrate` | Kalibrierung |
+| GET | `/api/materials` | Alle Materialien |
+| POST | `/api/materials` | Material erstellen |
+| PUT | `/api/materials/:id` | Material bearbeiten |
+| DELETE | `/api/materials/:id` | Material löschen |
+| GET | `/api/products` | Alle Produkte |
+| POST | `/api/products` | Produkt erstellen |
+| PUT | `/api/products/:id` | Produkt bearbeiten |
+| DELETE | `/api/products/:id` | Produkt löschen |
+| GET | `/api/export/products/pdf` | PDF exportieren |
+| GET | `/api/export/products/excel` | Excel exportieren |
+| POST | `/api/camera/capture` | Foto aufnehmen |
+| POST | `/api/barcode/generate` | Barcode generieren |
+
+---
+
+## 🤝 Mitwirken
+
+Beiträge sind herzlich willkommen!
+
+1. **Fork** das Repository
+2. Erstelle einen **Feature Branch** (`git checkout -b feature/NeuesFeature`)
+3. **Commit** deine Änderungen (`git commit -m 'Neues Feature XY'`)
+4. **Push** zum Branch (`git push origin feature/NeuesFeature`)
+5. Öffne einen **Pull Request**
+
+---
+
+## 📄 Lizenz
+
+**MIT License**
+
+Copyright © 2025 Stumpf.works
+
+Kostenlose Nutzung erlaubt - siehe [LICENSE](LICENSE) für Details.
+
+---
+
+## 👨‍💻 Entwickler
+
+**Erstellt von:** [Stumpf.works](https://stumpf.works)
+
+- 🌐 Website: https://stumpf.works
+- 📧 Email: info@stumpf.works
+- 💼 GitHub: https://github.com/stumpfworks
+
+---
+
+## 🙏 Danke
+
+Ein großes Dankeschön an:
+- Die **Raspberry Pi Foundation** für die tolle Hardware
+- Die **Open Source Community** für die verwendeten Bibliotheken
+- Alle **Tester und Contributor**
+
+---
+
+<div align="center">
+
+**⚖️ CraftScale - Dein Craft Management System**
+
+*Made with ❤️ for Makers, Artists and Small Businesses*
+
+**[⭐ Star this repo](https://github.com/DEIN-USERNAME/CraftScale)** wenn dir das Projekt gefällt!
+
+</div>

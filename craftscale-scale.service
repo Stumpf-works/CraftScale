@@ -1,0 +1,18 @@
+[Unit]
+Description=CraftScale Raspberry Pi HX711 Scale Reader
+Documentation=https://github.com/stumpfworks/craftscale
+After=network.target craftscale-server.service
+Requires=craftscale-server.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/stumpf/craftscale/raspberry-pi
+ExecStart=/usr/bin/python3 /home/stumpf/craftscale/raspberry-pi/scale_reader.py
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/stumpf/craftscale/logs/scale.log
+StandardError=append:/home/stumpf/craftscale/logs/scale-error.log
+
+[Install]
+WantedBy=multi-user.target

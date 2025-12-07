@@ -86,7 +86,7 @@ export default function ExportPanel() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* SumUp Export */}
-      <div className="glass-card p-6">
+      <div className="card p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
             <Download size={24} />
@@ -95,7 +95,7 @@ export default function ExportPanel() {
 
           <button
             onClick={toggleAll}
-            className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
           >
             {selectedProducts.length === products.length ? (
               <>
@@ -126,8 +126,8 @@ export default function ExportPanel() {
                   className={`
                     flex items-center gap-3 p-4 rounded-lg cursor-pointer transition-all border-2
                     ${selectedProducts.includes(product.id)
-                      ? 'border-indigo-500 bg-indigo-50'
-                      : 'border-gray-200 hover:border-indigo-300'
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-blue-300'
                     }
                   `}
                 >
@@ -135,7 +135,7 @@ export default function ExportPanel() {
                     type="checkbox"
                     checked={selectedProducts.includes(product.id)}
                     onChange={() => toggleProduct(product.id)}
-                    className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                   />
                   {product.photo_path && (
                     <img
@@ -158,7 +158,7 @@ export default function ExportPanel() {
             <button
               onClick={handleExportSumUp}
               disabled={selectedProducts.length === 0 || isExporting}
-              className="btn-gradient w-full py-4 text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn btn-primary w-full py-4 text-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isExporting ? (
                 <>
@@ -177,7 +177,7 @@ export default function ExportPanel() {
       </div>
 
       {/* Barcode Druck */}
-      <div className="glass-card p-6">
+      <div className="card p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
           <Printer size={24} />
           Barcode-Druck
@@ -209,7 +209,7 @@ export default function ExportPanel() {
             {products.map(product => (
               <div
                 key={product.id}
-                className="border-2 border-gray-200 rounded-xl p-4 hover:border-indigo-300 hover:shadow-lg transition-all"
+                className="border-2 border-gray-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-lg transition-all"
               >
                 <div className="flex items-start gap-3 mb-3">
                   {product.photo_path && (
@@ -227,7 +227,7 @@ export default function ExportPanel() {
 
                 <button
                   onClick={() => handleShowBarcode(product)}
-                  className="btn-gradient w-full text-sm py-2 flex items-center justify-center gap-1"
+                  className="btn btn-primary w-full text-sm py-2 flex items-center justify-center gap-1"
                 >
                   <QrCode size={16} />
                   Barcode anzeigen

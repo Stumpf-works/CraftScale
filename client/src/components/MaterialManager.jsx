@@ -15,7 +15,7 @@ import { API_BASE } from '../config';
 const materialTypes = [
   { value: 'harz', label: 'Harz', icon: Droplet, color: 'bg-blue-100 text-blue-700' },
   { value: 'härter', label: 'Härter', icon: Zap, color: 'bg-green-100 text-green-700' },
-  { value: 'pigment', label: 'Pigment', icon: Palette, color: 'bg-purple-100 text-purple-700' },
+  { value: 'pigment', label: 'Pigment', icon: Palette, color: 'bg-blue-100 text-blue-700' },
   { value: 'form', label: 'Form', icon: Box, color: 'bg-orange-100 text-orange-700' },
   { value: 'sonstiges', label: 'Sonstiges', icon: MoreHorizontal, color: 'bg-gray-100 text-gray-700' }
 ];
@@ -96,7 +96,7 @@ export default function MaterialManager() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Add Material Form */}
-      <div className="glass-card p-6">
+      <div className="card p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
           <Plus size={24} />
           Material hinzufügen
@@ -113,7 +113,7 @@ export default function MaterialManager() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="input-field w-full"
+              className="input w-full"
               placeholder="z.B. Epoxidharz 1kg"
               required
             />
@@ -128,7 +128,7 @@ export default function MaterialManager() {
             <select
               value={type}
               onChange={(e) => setType(e.target.value)}
-              className="input-field w-full"
+              className="input w-full"
             >
               {materialTypes.map(t => (
                 <option key={t.value} value={t.value}>{t.label}</option>
@@ -146,7 +146,7 @@ export default function MaterialManager() {
               type="number"
               value={unitPrice}
               onChange={(e) => setUnitPrice(e.target.value)}
-              className="input-field w-full"
+              className="input w-full"
               step="0.01"
               required
             />
@@ -161,7 +161,7 @@ export default function MaterialManager() {
             <select
               value={unit}
               onChange={(e) => setUnit(e.target.value)}
-              className="input-field w-full"
+              className="input w-full"
             >
               {units.map(u => (
                 <option key={u} value={u}>{u}</option>
@@ -171,7 +171,7 @@ export default function MaterialManager() {
 
           {/* Submit Button */}
           <div className="flex items-end">
-            <button type="submit" className="btn-gradient w-full">
+            <button type="submit" className="btn btn-primary w-full">
               <Plus size={16} className="inline mr-1" />
               Hinzufügen
             </button>
@@ -180,7 +180,7 @@ export default function MaterialManager() {
       </div>
 
       {/* Materials List */}
-      <div className="glass-card p-6">
+      <div className="card p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Materialien ({materials.length})</h2>
 
         {materials.length === 0 ? (
@@ -198,7 +198,7 @@ export default function MaterialManager() {
               return (
                 <div
                   key={material.id}
-                  className="border-2 border-gray-200 rounded-xl p-4 hover:border-indigo-300 hover:shadow-lg transition-all"
+                  className="border-2 border-gray-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-lg transition-all"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">

@@ -1,0 +1,20 @@
+[Unit]
+Description=CraftScale Node.js Server
+Documentation=https://github.com/stumpfworks/craftscale
+After=network.target
+
+[Service]
+Type=simple
+User=stumpf
+WorkingDirectory=/home/stumpf/craftscale
+ExecStart=/usr/bin/node /home/stumpf/craftscale/server.js
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/stumpf/craftscale/logs/server.log
+StandardError=append:/home/stumpf/craftscale/logs/server-error.log
+
+Environment=NODE_ENV=production
+Environment=PORT=3000
+
+[Install]
+WantedBy=multi-user.target
