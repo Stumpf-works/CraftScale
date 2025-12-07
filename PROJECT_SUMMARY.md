@@ -45,7 +45,7 @@ CraftScale/
 │   ├── package.json              ✅ Backend Dependencies
 │   ├── .env.example              ✅ Environment Template
 │   ├── .env                      ✅ Aktuelle Konfiguration
-│   ├── .gitignore               ✅ Git Ignore Rules
+│   ├── .gitignore                ✅ Git Ignore Rules
 │   └── LICENSE                   ✅ MIT Lizenz
 │
 ├── 🖥️ Backend (Node.js)
@@ -80,11 +80,6 @@ CraftScale/
 │           └── styles/
 │               └── globals.css          ✅ Tailwind Styles
 │
-├── 🔌 Hardware (Arduino)
-│   └── arduino/
-│       ├── esp8266_scale.ino            ✅ Original (Code-Config)
-│       ├── esp8266_scale_with_webui.ino ✅ NEU mit Web-Interface ⭐
-│       └── README_WEBUI.md              ✅ Web-Interface Docs
 │
 ├── 📚 Dokumentation
 │   ├── README.md                 ✅ Haupt-Dokumentation
@@ -92,10 +87,6 @@ CraftScale/
 │   ├── STRUCTURE.md              ✅ Projekt-Struktur
 │   ├── GITHUB_DESCRIPTION.md     ✅ GitHub Setup
 │   └── PROJECT_SUMMARY.md        ✅ Diese Datei
-│
-├── 🛠️ Installation
-│   ├── install.sh                ✅ Linux/Mac/Raspberry Pi
-│   ├── install.bat               ✅ Windows
 │   └── item_template.csv         ✅ SumUp Template
 │
 └── 📦 Generierte Verzeichnisse

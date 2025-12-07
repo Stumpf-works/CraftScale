@@ -31,5 +31,3 @@ npm-debug.log*
 # Temporary
 tmp/
 temp/
-.claude/settings.local.json
-.claude/

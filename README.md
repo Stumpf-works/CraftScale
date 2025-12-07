@@ -2,7 +2,7 @@
 
 **Professionelles Produktverwaltungs-System mit intelligenter Waage**
 
-> Entwickelt von **Stumpf.works** für Handwerker, Künstler und Kleinunternehmer
+> Entwickelt von **stumpfworks** für Handwerker, Künstler und Kleinunternehmer
 
 ---
 
